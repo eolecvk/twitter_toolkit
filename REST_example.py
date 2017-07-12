@@ -1,5 +1,5 @@
 
-import REST_utils
+import utils_REST
 
 def preprocess_screen_name(screen_name):
     """
@@ -28,7 +28,7 @@ def get_tweets_for_users(twitter_api, users_screen_name=[]):
 
     for screen_name in users_screen_name:
         screen_name_clean = preprocess_screen_name(screen_name)
-        user_timeline = REST_utils.get_user_timeline(
+        user_timeline = utils_REST.get_user_timeline(
             twitter_api=twitter_api,
             screen_name=screen_name_clean, user_id=None)
 
@@ -63,7 +63,7 @@ if __name__ == "__main__":
     # Create authentication token for the Twitter API
     # Here, define your own credentials...
     from credentials import APP_KEY, APP_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET
-    twitter_api = REST_utils.oauth_login(APP_KEY, APP_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
+    twitter_api = utils_REST.oauth_login(APP_KEY, APP_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
 
     # Get timelines of input users
     timelines = get_tweets_for_users(twitter_api, input_users)
