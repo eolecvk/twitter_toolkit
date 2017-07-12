@@ -17,13 +17,12 @@ def preprocess_screen_name(screen_name):
 
 def get_tweets_for_users(twitter_api, users_screen_name=[]):
     """
-    1. Get the twitter user ids for the users in `users_screen_name`
-    2. For each existing and public user in the user ids list, get the user timeline
-    3. Return user timelines as dict, { user_id : [{tweets}], ...}
+    For each existing and public user in the `users_screen_name` list, get the user timeline
+    Return user timelines as dict such as { user_id : list({tweets}), ...}
 
     Keyword args:
+    `twitter_api` : OAuth 2 for Twitter API using the Twython package (cf twitter_mining.oauth_login())
     `users_screen_name` list of twitter user handle (eg: potus, kanye_west,..)
-
     """
     user_timeline_dict = {}
 
