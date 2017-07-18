@@ -1,5 +1,21 @@
 
-import utils_REST
+import REST_utils
+
+def check_credentials_module():
+    try:
+        from credentials import app_key, app_secret
+        return True
+    except ImportError:
+        print("""
+        You must create a file [credentials.py] containing:
+        ```
+        app_key = "smlKGxxxxxxxxxxxxxxx" # your own app key
+        app_secret = "CCeKgghgup1Sxxxxxxxxxxxx" # your own app secret key
+        ```
+        ==> https://apps.twitter.com/
+        """)
+        return False
+
 
 def preprocess_screen_name(screen_name):
     """
@@ -15,21 +31,19 @@ def preprocess_screen_name(screen_name):
         return ''
 
 
-def get_tweets_for_users(twitter_api, users_screen_name=[]):
+def get_tweets_for_users(users_screen_name=[]):
     """
     For each existing and public user in the `users_screen_name` list, get the user timeline
     Return user timelines as dict such as { user_id : list({tweets}), ...}
 
     Keyword args:
-    `twitter_api` : OAuth 2 for Twitter API using the Twython package (cf twitter_mining.oauth_login())
     `users_screen_name` list of twitter user handle (eg: potus, kanye_west,..)
     """
     user_timeline_dict = {}
 
     for screen_name in users_screen_name:
         screen_name_clean = preprocess_screen_name(screen_name)
-        user_timeline = utils_REST.get_user_timeline(
-            twitter_api=twitter_api,
+        user_timeline = REST_utils.get_user_timeline(
             screen_name=screen_name_clean, user_id=None)
 
         if user_timeline:
@@ -60,13 +74,14 @@ if __name__ == "__main__":
         'NubianNaturelle'
     ]
 
-    # Create authentication token for the Twitter API
-    # Here, define your own credentials...
-    from credentials import APP_KEY, APP_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET
-    twitter_api = utils_REST.oauth_login(APP_KEY, APP_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
+    # Check that a valid credentials.py exists in the directory
+    if not check_credentials_module():
+        import sys
+        sys.exit()
 
     # Get timelines of input users
-    timelines = get_tweets_for_users(twitter_api, input_users)
+    timelines = get_tweets_for_users(input_users)
+    print(timelines)
 
 
 

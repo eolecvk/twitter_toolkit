@@ -2,31 +2,14 @@
 import sys
 import time
 import datetime
-import os
+
 from os.path import join
 import simplejson as json
 
 from urllib.error import URLError
 from http.client import BadStatusLine
 from twython import Twython, TwythonError
-
-
-
-# =====================================================================================
-# UTILS
-# =====================================================================================
-def oauth_login(APP_KEY, APP_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET):
-    """
-    OAuth 2 for Twitter API using the Twython package
-    ---
-    cf https://twython.readthedocs.io/en/latest/usage/starting_out.html#oauth2
-    """
-    twitter = Twython(APP_KEY, APP_SECRET, oauth_version=2)
-    ACCESS_TOKEN = twitter.obtain_access_token() # Store ACCESS_TOKEN ???
-    twitter_api = Twython(APP_KEY, access_token=ACCESS_TOKEN)
-
-    return twitter_api
-    
+import conn
 
 def make_twitter_request(twitter_api_func, max_errors=10, *args, **kw):
     """
@@ -36,7 +19,6 @@ def make_twitter_request(twitter_api_func, max_errors=10, *args, **kw):
     Returns None for 401 and 404 errors, which requires special handling by the caller.
 
     Keyword args:
-    `twitter_api`: a twython.Twython authentication object
     `max_errors` : maximum number of retries on error before exiting the function
     `*args`, `**kw` : args for twitter_api_func()
     """
@@ -111,7 +93,6 @@ from functools import partial
 from sys import maxsize
 
 def get_friends_followers_ids(
-    twitter_api,
     screen_name=None, user_id=None,
     friends_limit=maxsize, followers_limit=maxsize):
     """
@@ -130,6 +111,8 @@ def get_friends_followers_ids(
     # Must have either screen_name or user_id (logical xor)
     assert (screen_name != None) != (user_id != None),\
     "Must have screen_name or user_id, but not both"
+
+    twitter_api = conn.get_twitter_api()
 
     get_followers_ids = partial(
         make_twitter_request,
@@ -172,7 +155,6 @@ def get_friends_followers_ids(
 
 
 def get_user_timeline(
-    twitter_api,
     screen_name=None, user_id=None,
     since_id=None,
     max_id=None,
@@ -194,6 +176,8 @@ def get_user_timeline(
     "Must have screen_name or user_id, but not both"
     # https://dev.twitter.com/rest/reference/get/statuses/user_timeline
     # for details on API parameters
+
+    twitter_api = conn.get_twitter_api()
 
     get_user_timeline = partial(
         make_twitter_request,
@@ -238,13 +222,11 @@ def get_user_timeline(
     return user_timeline
 
 
-def get_user_data(twitter_api,
-    user_id=None, screen_name=None):
+def get_user_data(user_id=None, screen_name=None):
     """
     For a given user, get user profile data
 
     Keyword args:
-    `twitter_api`: a twython.Twython authentication object
     `screen_name` or `user_id` (not both!): either user screen_name (@potus) or a user id (110123231)
     ---
     cf https://dev.twitter.com/rest/reference/get/users/show
@@ -253,6 +235,8 @@ def get_user_data(twitter_api,
     # Must have either screen_name or user_id (logical xor)
     assert (screen_name != None) != (user_id != None),\
     "Must have screen_name or user_id, but not both"
+
+    twitter_api = conn.get_twitter_api()
   
     get_user_data = partial(
         make_twitter_request,
